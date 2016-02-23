@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        body {
+            padding: 20px;
+        }
+
+        #console {
+            height: 400px;
+            overflow: auto;
+        }
+
+        .username-msg {
+            color: orange;
+        }
+
+        .connect-msg {
+            color: green;
+        }
+
+        .disconnect-msg {
+            color: red;
+        }
+
+        .send-msg {
+            color: #888
+        }
+    </style>
+</head>
+<body>
+<div id="console" class="well">
+</div>
+
+<form>
+    <input id="joincart" class="input-xlarge" type="text" placeholder="Type something..."/>
+    <button type="button" onClick="sendMessage1()" class="btn">Send</button>
+</form>
+<form>
+    <input id="changecart" class="input-xlarge" type="text" placeholder="Type something..."/>
+    <button type="button" onClick="sendMessage2()" class="btn">Send</button>
+</form>
+<form>
+    <input id="order" class="input-xlarge" type="text" placeholder="Type something..."/>
+    <button type="button" onClick="sendMessage3()" class="btn">Send</button>
+</form>
+<script src="../client/js/socket.io/socket.io.js"></script>
+<script src="../client/js/moment.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script>
+    var userName = 'user' + Math.floor((Math.random() * 1000) + 1);
+
+    var socket1 = io.connect('http://localhost:9002/cart');
+    var socket2 = io.connect('http://localhost:9002/order');
+
+
+    socket1.on('connect', function () {
+        output('<span class="connect-msg">Client 1 has connected to the server!</span>');
+    });
+    socket2.on('connect', function () {
+        output('<span class="connect-msg">Client 2 has connected to the server!</span>');
+    });
+
+    socket1.on('joinCart', function (data) {
+        output('<span class="username-msg">' + data.userName + "joincart" + ':</span> ' + data.message);
+    });
+    socket1.on('changeCart', function (data) {
+        output('<span class="username-msg">' + data.userName + "changeCart"+':</span> ' + data.message);
+    });
+    socket1.on("joinCartClient",function(data){
+        output('<span class="username-msg">' + data.userName + "joinCartClient"+':</span> ' + data.message);
+    });
+
+    socket1.join("room");
+    socke
+    2.on('order', function (data) {
+        output('<span class="username-msg">' + data.userName + "order"+':</span> ' + data.message);
+    });
+    socket2.join("room")
+    socket1.on('disconnect', function () {
+        output('<span class="disconnect-msg">The client 1 has disconnected!</span>');
+    });
+
+    socket2.on('disconnect', function () {
+        output('<span class="disconnect-msg">The client 2 has disconnected!</span>');
+    });
+    function sendMessage1() {
+        var message = $('#joincart').val();
+        $('#joincart').val('');
+        socket1.emit('joinCart', {userName: userName, message: message});
+    }
+    function sendMessage2() {
+        var message = $('#changecart').val();
+        $('#changecart').val('');
+        socket1.emit('changeCart', {userName: userName, message: message});
+    }
+    function sendMessage3() {
+        var message = $('#order').val();
+        $('#order').val('');
+        socket2.emit('confirmOrder', {userName: userName, message: message});
+    }
+
+    function output(message,parentId) {
+        var currentTime = "<span class='time'>" + moment().format('HH:mm:ss.SSS') + "</span>";
+        var element = $("<div>" + currentTime + " " + message + "</div>");
+        $(parentId + ' .console').prepend(element);
+    }
+</script>
+</body>
+</html>

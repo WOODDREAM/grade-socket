@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+
+</head>
+<body>
+
+<h1>Netty-socketio Demo Chat</h1>
+
+<br/>
+
+<div id="console" class="well">
+</div>
+<form>
+    <input id="msg1" class="input-xlarge" type="text" placeholder="Type something..."/>
+    <button type="button" onClick="sendMessage1()" class="btn">Send</button>
+</form>
+
+<form>
+    <input id="msg2" class="input-xlarge" type="text" placeholder="Type something..."/>
+    <button type="button" onClick="sendMessage2()" class="btn">Send</button>
+</form>
+
+<form>
+    <input id="msg3" class="input-xlarge" type="text" placeholder="Type something..."/>
+    <button type="button" onClick="sendMessage3()" class="btn">Send</button>
+</form>
+
+</body>
+<script src="../client/js/socket.io/socket.io.js"></script>
+<script src="../client/js/moment.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+
+<script>
+    var userName1 = 'user1' + Math.floor((Math.random() * 1000) + 1);
+    var userName2 = 'user2' + Math.floor((Math.random() * 1000) + 1);
+    var userName3 = 'user3' + Math.floor((Math.random() * 1000) + 1);
+    var socket = io.connect('http://localhost:9091');
+    var socket2 = io.connect('http://localhost:9091/edu');
+    socket.on('connect', function () {
+        output('<span class="connect-msg">Client has connected to the server!</span>');
+    });
+
+    socket.on('join', function (data) {
+        output('<span class="username-msg">' + data.userName + ':</span> ' + data.message + ':</span> ' + data.roomName);
+    });
+
+    socket.on('disconnect', function () {
+        output('<span class="disconnect-msg">The client has disconnected!</span>');
+    });
+    function sendMessage(userName, message,roomName) {
+        socket.emit('join', {userName: userName, message: message,roomName:roomName});
+    }
+
+    function sendMessage1() {
+        var roomName = "zjut"
+        var message = $('#msg1').val();
+        $('#msg1').val('');
+        sendMessage(userName1, message,roomName);
+    }
+    function sendMessage2() {
+        var roomName = "zjut"
+        var message = $('#msg2').val();
+        $('#msg2').val('');
+        sendMessage(userName2, message,roomName);
+    }
+    function sendMessage3() {
+        var roomName = "edu"
+        var message = $('#msg3').val();
+        $('#msg3').val('');
+        sendMessage(userName3, message,roomName);
+    }
+
+    function output(message) {
+        var currentTime = "<span class='time'>" + moment().format('HH:mm:ss.SSS') + "</span>";
+        var element = $("<div>" + currentTime + " " + message + "</div>");
+        $('#console').prepend(element);
+    }
+</script>
+</html>
